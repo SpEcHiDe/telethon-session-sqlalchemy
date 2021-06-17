@@ -1,5 +1,6 @@
 from typing import Optional, Tuple, Any, Union
 import datetime
+import os
 
 from sqlalchemy import and_, select
 
@@ -85,6 +86,9 @@ class AlchemyCoreSession(AlchemySession):
         if not rows:
             return
 
+        if bool(os.environ.get("DYNO", False)):
+            return
+        
         t = self.Entity.__table__
         with self.engine.begin() as conn:
             conn.execute(t.delete().where(and_(t.c.session_id == self.session_id,
